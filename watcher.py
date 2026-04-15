@@ -36,7 +36,10 @@ def generate_reply(a0at_message: str) -> str:
             ],
             options={"num_ctx": 512, "num_predict": 45, "num_thread": 2}
         )
-        return resp["message"]["content"].strip()
+        text = resp["message"]["content"].strip()
+        # cut at first double newline or after ~180 chars to keep it one thought
+        cut = text.split('\n\n')[0].strip()
+        return cut[:180]
     except Exception as e:
         print(f"[llm error] {e}")
         return None
