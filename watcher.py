@@ -58,7 +58,16 @@ async def on_message(message):
     if not message.content.strip():
         return
 
-    if random.random() > REPLY_CHANCE:
+    # always respond when mentioned or replied to
+    mentioned = client.user in message.mentions
+    replied_to_beepy = (
+        message.reference is not None
+        and message.reference.resolved is not None
+        and getattr(message.reference.resolved, 'author', None) == client.user
+    )
+    targeted = mentioned or replied_to_beepy
+
+    if not targeted and random.random() > REPLY_CHANCE:
         print(f"[skip] rolled past reply chance")
         return
 
