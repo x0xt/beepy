@@ -111,8 +111,9 @@ async def on_message(message):
         log_chat(author, content, PRIVACY_REPLY)
         return
 
-    loop  = asyncio.get_running_loop()
-    reply = await loop.run_in_executor(None, generate_reply, content)
+    loop = asyncio.get_running_loop()
+    async with message.channel.typing():
+        reply = await loop.run_in_executor(None, generate_reply, content)
 
     if reply:
         await message.channel.send(reply)
