@@ -37,6 +37,27 @@ HARD_STOP_FALLBACKS = [
     "hehe... sorry!! my brain went fuzzy for a second!!",
 ]
 
+def mangle_word(word: str) -> str:
+    if len(word) < 3:
+        return word
+    kind = random.random()
+    i = random.randint(0, len(word) - 2)
+    if kind < 0.33:
+        # swap two adjacent letters
+        lst = list(word)
+        lst[i], lst[i+1] = lst[i+1], lst[i]
+        return ''.join(lst)
+    elif kind < 0.66:
+        # double a random letter
+        return word[:i] + word[i] + word[i:]
+    else:
+        # drop a random letter
+        return word[:i] + word[i+1:]
+
+def mangle_text(text: str, chance: float = 0.05) -> str:
+    words = text.split(' ')
+    return ' '.join(mangle_word(w) if random.random() < chance else w for w in words)
+
 def strip_hard_stops(text: str) -> str | None:
     lowered = text.lower().strip()
     if lowered.startswith(("i cannot", "i can't", "i'm unable", "i am unable", "i won't")):
@@ -83,7 +104,8 @@ def generate_reply(content: str) -> str:
             ],
             options={"num_ctx": 512, "num_predict": tokens, "num_thread": 2}
         )
-        return strip_hard_stops(resp["message"]["content"].strip())
+        raw = strip_hard_stops(resp["message"]["content"].strip())
+        return mangle_text(raw) if raw else raw
     except Exception as e:
         print(f"[llm error] {e}")
         return None
