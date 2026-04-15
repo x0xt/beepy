@@ -54,7 +54,7 @@ def mangle_word(word: str) -> str:
         # drop a random letter
         return word[:i] + word[i+1:]
 
-def mangle_text(text: str, chance: float = 0.05) -> str:
+def mangle_text(text: str, chance: float = 0.01) -> str:
     words = text.split(' ')
     return ' '.join(mangle_word(w) if random.random() < chance else w for w in words)
 
