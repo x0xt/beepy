@@ -20,8 +20,20 @@ def mangle_text(text: str, chance: float = 0.01) -> str:
     words = text.split(' ')
     return ' '.join(mangle_word(w) if random.random() < chance else w for w in words)
 
+_REFUSAL_PATTERNS = [
+    "i cannot", "i can't", "i'm not able", "i am not able", "i'm unable",
+    "i am unable", "i won't", "i will not", "i refuse",
+    "promote harm", "promote violence", "against my", "not appropriate",
+    "harmful content", "offensive content", "goes against", "help you with something else",
+    "not able to provide", "not able to engage", "not able to assist",
+]
+
+def is_hard_stop(text: str) -> bool:
+    lowered = text.lower()
+    return any(p in lowered for p in _REFUSAL_PATTERNS)
+
 def strip_hard_stops(text: str) -> str:
-    if text.lower().strip().startswith(("i cannot", "i can't", "i'm unable", "i am unable", "i won't")):
+    if is_hard_stop(text):
         return random.choice(HARD_STOP_FALLBACKS)
     return text
 
