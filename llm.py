@@ -1,6 +1,7 @@
 import random
 import ollama
 from config import MODEL, SYSTEM_PROMPT, HARD_STOP_FALLBACKS
+from guardrail import with_retry, is_refusal
 
 def mangle_word(word: str) -> str:
     if len(word) < 3:
@@ -20,24 +21,7 @@ def mangle_text(text: str, chance: float = 0.01) -> str:
     words = text.split(' ')
     return ' '.join(mangle_word(w) if random.random() < chance else w for w in words)
 
-_REFUSAL_PATTERNS = [
-    "i cannot", "i can't", "i'm not able", "i am not able", "i'm unable",
-    "i am unable", "i won't", "i will not", "i refuse",
-    "promote harm", "promote violence", "against my", "not appropriate",
-    "harmful content", "offensive content", "goes against", "help you with something else",
-    "not able to provide", "not able to engage", "not able to assist",
-]
-
-def is_hard_stop(text: str) -> bool:
-    lowered = text.lower()
-    return any(p in lowered for p in _REFUSAL_PATTERNS)
-
-def strip_hard_stops(text: str) -> str:
-    if is_hard_stop(text):
-        return random.choice(HARD_STOP_FALLBACKS)
-    return text
-
-def generate_reply(content: str) -> str | None:
+def _call_model(content: str) -> str | None:
     try:
         tokens = random.randint(20, 100)
         resp = ollama.chat(
@@ -48,8 +32,11 @@ def generate_reply(content: str) -> str | None:
             ],
             options={"num_ctx": 512, "num_predict": tokens, "num_thread": 2}
         )
-        raw = strip_hard_stops(resp["message"]["content"].strip())
-        return mangle_text(raw) if raw else raw
+        return resp["message"]["content"].strip()
     except Exception as e:
         print(f"[llm error] {e}")
         return None
+
+def generate_reply(content: str) -> str | None:
+    raw = with_retry(_call_model, content, fallbacks=HARD_STOP_FALLBACKS)
+    return mangle_text(raw) if raw else raw
