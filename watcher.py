@@ -5,6 +5,7 @@ import discord
 import asyncio
 import random
 import json
+import re
 import time
 from datetime import datetime
 from pathlib import Path
@@ -27,6 +28,20 @@ PRIVACY_REPLY = (
     "oh!! yes!! beepy keeps a little log of conversations to get better at helping!! "
     "i hope that's okay!! i think it's okay!! it's probably okay!!"
 )
+
+HARD_STOP_FALLBACKS = [
+    "oh!! um... i got a little confused!! hehe!!",
+    "wait what happened?? i think i missed something!!",
+    "oh no!! i blanked!! what were we talking about?!",
+    "um!! okay!! i'm not sure what to say but i'm still here!!",
+    "hehe... sorry!! my brain went fuzzy for a second!!",
+]
+
+def strip_hard_stops(text: str) -> str | None:
+    lowered = text.lower().strip()
+    if lowered.startswith(("i cannot", "i can't", "i'm unable", "i am unable", "i won't")):
+        return random.choice(HARD_STOP_FALLBACKS)
+    return text
 
 # ── LOGGING ───────────────────────────────────────────────────────────────────
 
@@ -68,7 +83,7 @@ def generate_reply(content: str) -> str:
             ],
             options={"num_ctx": 512, "num_predict": tokens, "num_thread": 2}
         )
-        return resp["message"]["content"].strip()
+        return strip_hard_stops(resp["message"]["content"].strip())
     except Exception as e:
         print(f"[llm error] {e}")
         return None
@@ -101,7 +116,8 @@ async def on_message(message):
     if not targeted and random.random() > current_reply_chance():
         return
 
-    content = message.content[:300]
+    # strip mentions and extra whitespace before sending to model
+    content = re.sub(r'<@!?\d+>', '', message.content).strip()[:300]
     author  = str(message.author)
     print(f"[msg] {author}: {content[:80]}")
 
