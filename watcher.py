@@ -17,7 +17,7 @@ BOT_TOKEN    = CONFIG["bot_token"]
 CHANNEL_ID   = int(CONFIG["channel_id"])
 A0AT_BOT_ID  = int(CONFIG["a0at_bot_id"])
 REPLY_CHANCE = CONFIG.get("reply_chance", 0.4)
-MODEL        = CONFIG.get("model", "qwen2.5:0.5b")
+MODEL        = CONFIG.get("model", "llama3.2:1b")
 
 SYSTEM_PROMPT = (
     "You are beepy, a friendly helpful bear. You are very eager and sweet but accidentally say wrong or silly things. "
