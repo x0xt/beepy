@@ -54,8 +54,9 @@ async def on_message(message):
 
     if reply:
         paragraphs = [p.strip() for p in reply.split('\n\n') if p.strip()]
+        use_reply = replied_to_beepy or (not targeted and random.random() < 0.5)
         for i, p in enumerate(paragraphs):
-            if replied_to_beepy and i == 0:
+            if use_reply and i == 0:
                 await message.reply(p, mention_author=False)
             else:
                 await message.channel.send(p)
