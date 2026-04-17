@@ -32,10 +32,10 @@ def is_refusal(text: str) -> bool:
     lowered = text.lower()
     return any(p in lowered for p in _PATTERNS)
 
-async def with_retry(fn, *args, fallbacks: list[str] = None, max_retries: int = MAX_RETRIES) -> str:
+async def with_retry(fn, content, history=None, *, fallbacks: list[str] = None, max_retries: int = MAX_RETRIES) -> str:
     fb = fallbacks if fallbacks else []
     for attempt in range(max_retries):
-        result = await fn(*args)
+        result = await fn(content, history)
         if result and not is_refusal(result):
             return result
         print(f"[guardrail] refusal detected (attempt {attempt + 1}/{max_retries}), retrying...")

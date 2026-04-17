@@ -9,6 +9,7 @@ from config import BOT_TOKEN, PRIVACY_REPLY
 from llm import generate_reply
 from logger import log_chat
 from chance import current_reply_chance, starting_chance
+from history import get_history, push_history
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -47,10 +48,15 @@ async def on_message(message):
         log_chat(author, content, PRIVACY_REPLY)
         return
 
+    channel_id = str(message.channel.id)
+    history = get_history(channel_id)
+
     async with message.channel.typing():
-        reply = await generate_reply(content)
+        reply = await generate_reply(content, history)
 
     if reply:
+        push_history(channel_id, 'user', content)
+        push_history(channel_id, 'assistant', reply)
         # split by paragraph then chunk anything over 1990 chars
         raw_paragraphs = [p.strip() for p in reply.split('\n\n') if p.strip()]
         chunks = []

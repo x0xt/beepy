@@ -23,17 +23,18 @@ def mangle_text(text: str, chance: float = 0.01) -> str:
     words = text.split(' ')
     return ' '.join(mangle_word(w) if random.random() < chance else w for w in words)
 
-async def _call_model(content: str) -> str | None:
+async def _call_model(content: str, history: list = None) -> str | None:
     try:
         tokens = random.randint(20, 200)
+        messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+        if history:
+            messages.extend(history)
+        messages.append({"role": "user", "content": content})
         resp = await _client.chat(
             model=MODEL,
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user",   "content": content},
-            ],
+            messages=messages,
             think=False,
-            options={"num_ctx": 512, "num_predict": tokens, "num_thread": 2},
+            options={"num_ctx": 32768, "num_predict": tokens, "num_thread": 2},
             keep_alive=-1,
         )
         return resp["message"]["content"].strip()
@@ -41,6 +42,6 @@ async def _call_model(content: str) -> str | None:
         print(f"[llm error] {e}")
         return None
 
-async def generate_reply(content: str) -> str | None:
-    raw = await with_retry(_call_model, content, fallbacks=HARD_STOP_FALLBACKS)
+async def generate_reply(content: str, history: list = None) -> str | None:
+    raw = await with_retry(_call_model, content, history, fallbacks=HARD_STOP_FALLBACKS)
     return mangle_text(raw) if raw else raw
