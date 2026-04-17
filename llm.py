@@ -3,6 +3,8 @@ import ollama
 from config import MODEL, SYSTEM_PROMPT, HARD_STOP_FALLBACKS
 from guardrail import with_retry, is_refusal
 
+_client = ollama.Client(host="http://127.0.0.1:11435")
+
 def mangle_word(word: str) -> str:
     if len(word) < 3:
         return word
@@ -24,13 +26,14 @@ def mangle_text(text: str, chance: float = 0.01) -> str:
 def _call_model(content: str) -> str | None:
     try:
         tokens = random.randint(20, 100)
-        resp = ollama.chat(
+        resp = _client.chat(
             model=MODEL,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user",   "content": content},
             ],
-            options={"num_ctx": 512, "num_predict": tokens, "num_thread": 2}
+            options={"num_ctx": 512, "num_predict": tokens, "num_thread": 2},
+            keep_alive=-1,
         )
         return resp["message"]["content"].strip()
     except Exception as e:
