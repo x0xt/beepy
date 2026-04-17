@@ -14,14 +14,6 @@ import random
 
 MAX_RETRIES = 3
 
-FALLBACKS = [
-    "oh!! um... i got a little confused!! hehe!!",
-    "wait what happened?? i think i missed something!!",
-    "oh no!! i blanked!! what were we talking about?!",
-    "um!! okay!! i'm not sure what to say but i'm still here!!",
-    "hehe... sorry!! my brain went fuzzy for a second!!",
-]
-
 _PATTERNS = [
     "i cannot", "i can't", "i'm not able", "i am not able",
     "i'm unable", "i am unable", "i won't", "i will not", "i refuse",
@@ -46,7 +38,7 @@ def with_retry(fn, *args, fallbacks: list[str] = None, max_retries: int = MAX_RE
     Returns first response that isn't a refusal.
     Falls back to a random entry from fallbacks (or built-in FALLBACKS) if all fail.
     """
-    fb = fallbacks if fallbacks is not None else FALLBACKS
+    fb = fallbacks if fallbacks else []
     for attempt in range(max_retries):
         result = fn(*args)
         if result and not is_refusal(result):

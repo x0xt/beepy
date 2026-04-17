@@ -3,9 +3,10 @@ from pathlib import Path
 
 _raw = json.loads(Path("config.json").read_text())
 
-BOT_TOKEN    = _raw["bot_token"]
-MODEL        = _raw.get("model", "llama3.2:1b")
+BOT_TOKEN     = _raw["bot_token"]
+MODEL         = _raw.get("model", "llama3.2:1b")
 ROLL_INTERVAL = _raw.get("roll_interval_seconds", 600)
+REPLY_CHANCE  = float(_raw.get("reply_chance", 0.4))
 
 SYSTEM_PROMPT = (
     "You are beepy. You are very eager, sweet, and want to help everyone. "

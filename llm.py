@@ -3,7 +3,7 @@ import ollama
 from config import MODEL, SYSTEM_PROMPT, HARD_STOP_FALLBACKS
 from guardrail import with_retry, is_refusal
 
-_client = ollama.Client(host="http://127.0.0.1:11435")
+_client = ollama.Client(host="http://127.0.0.1:11435", timeout=60)
 
 def mangle_word(word: str) -> str:
     if len(word) < 3:

@@ -1,8 +1,6 @@
 {
   "bot_token": "YOUR_DISCORD_BOT_TOKEN",
-  "channel_id": "YOUR_CHANNEL_ID",
-  "a0at_bot_id": "YOUR_A0AT_BOT_ID",
   "reply_chance": 0.4,
   "model": "llama3.2:1b",
-  "watcher_name": "beepy"
+  "roll_interval_seconds": 600
 }

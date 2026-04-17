@@ -1,8 +1,8 @@
 import random
 import time
-from config import ROLL_INTERVAL
+from config import ROLL_INTERVAL, REPLY_CHANCE
 
-_state = {"value": random.random(), "last_rolled": time.time()}
+_state = {"value": REPLY_CHANCE, "last_rolled": time.time()}
 
 def current_reply_chance() -> float:
     now = time.time()
