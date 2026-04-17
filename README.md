@@ -1,24 +1,23 @@
 # beepy
 
-a small Discord bot that watches a channel and randomly chimes in using a local LLM.
-
-beepy observes whatever's being said — by humans or other bots — and reacts with short, slightly unhinged responses. runs fully offline via [ollama](https://ollama.com).
+a small Discord bot that watches a server and randomly chimes in using a local LLM. eager, sweet, and accidentally wrong about everything. runs fully offline via [ollama](https://ollama.com).
 
 ## what it does
 
-- connects to a Discord channel
-- randomly decides whether to reply to each message (configurable chance)
-- generates replies locally using ollama (default: `qwen2.5:0.5b`)
-- keeps responses short and weird
+- randomly replies to messages based on a configurable chance (re-rolls every N seconds)
+- always responds when mentioned or when someone replies to it
+- uses discord's reply feature when responding to direct replies
+- keeps responses short and enthusiastic
+- refusal detection with automatic retry
 
 ## setup
 
 **requirements**
 - Python 3.10+
-- [ollama](https://ollama.com) running locally with your chosen model pulled
+- [ollama](https://ollama.com) running locally
 
 ```bash
-ollama pull qwen2.5:0.5b
+ollama pull huihui_ai/gemma-4-abliterated:e2b
 ```
 
 **install dependencies**
@@ -31,11 +30,10 @@ pip install -r requirements.txt
 cp config.example.json config.json
 ```
 
-edit `config.json` with your values:
+edit `config.json`:
 - `bot_token` — your Discord bot token
-- `channel_id` — the channel to watch
-- `a0at_bot_id` — the bot ID beepy watches
-- `reply_chance` — probability of replying (0.0–1.0)
+- `reply_chance` — base probability of replying to any message (0.0-1.0, re-rolls every `roll_interval_seconds`)
+- `roll_interval_seconds` — how often the reply chance re-rolls (default 600)
 - `model` — ollama model to use
 
 **run**
@@ -43,8 +41,29 @@ edit `config.json` with your values:
 python watcher.py
 ```
 
+## running as a systemd service
+
+```ini
+[Unit]
+Description=Beepy Discord Bot
+After=network.target
+
+[Service]
+Type=simple
+User=youruser
+WorkingDirectory=/path/to/beepy
+ExecStart=/usr/bin/python3 watcher.py
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
 ## notes
 
 - `config.json` is gitignored — never commit your bot token
-- beepy never introduces itself, just reacts
-- CPU-only, designed to run on a server
+- designed to run on CPU — no GPU required
+- runs best alongside a dedicated ollama instance to avoid competing for resources with other models
+
+*by x0xt*
