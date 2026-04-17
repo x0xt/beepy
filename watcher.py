@@ -54,8 +54,11 @@ async def on_message(message):
 
     if reply:
         paragraphs = [p.strip() for p in reply.split('\n\n') if p.strip()]
-        for p in paragraphs:
-            await message.channel.send(p)
+        for i, p in enumerate(paragraphs):
+            if replied_to_beepy and i == 0:
+                await message.reply(p, mention_author=False)
+            else:
+                await message.channel.send(p)
             if len(paragraphs) > 1:
                 await asyncio.sleep(0.8)
         log_chat(author, content, reply)
