@@ -25,7 +25,7 @@ def mangle_text(text: str, chance: float = 0.01) -> str:
 
 async def _call_model(content: str) -> str | None:
     try:
-        tokens = random.randint(15, 60)
+        tokens = random.randint(20, 200)
         resp = await _client.chat(
             model=MODEL,
             messages=[

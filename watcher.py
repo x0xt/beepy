@@ -51,14 +51,23 @@ async def on_message(message):
         reply = await generate_reply(content)
 
     if reply:
-        paragraphs = [p.strip() for p in reply.split('\n\n') if p.strip()]
+        # split by paragraph then chunk anything over 1990 chars
+        raw_paragraphs = [p.strip() for p in reply.split('\n\n') if p.strip()]
+        chunks = []
+        for p in raw_paragraphs:
+            while len(p) > 1990:
+                chunks.append(p[:1990])
+                p = p[1990:]
+            if p:
+                chunks.append(p)
+
         use_reply = replied_to_beepy or (not targeted and random.random() < 0.5)
-        for i, p in enumerate(paragraphs):
+        for i, chunk in enumerate(chunks):
             if use_reply and i == 0:
-                await message.reply(p, mention_author=False)
+                await message.reply(chunk, mention_author=False)
             else:
-                await message.channel.send(p)
-            if len(paragraphs) > 1:
+                await message.channel.send(chunk)
+            if len(chunks) > 1:
                 await asyncio.sleep(0.8)
         log_chat(author, content, reply)
         print(f"[beepy] {reply[:80]}")
