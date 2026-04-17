@@ -3,7 +3,6 @@ beepy — entry point. discord client and event handlers only.
 """
 import re
 import random
-import asyncio
 import discord
 
 from config import BOT_TOKEN, PRIVACY_REPLY
@@ -48,9 +47,8 @@ async def on_message(message):
         log_chat(author, content, PRIVACY_REPLY)
         return
 
-    loop = asyncio.get_running_loop()
     async with message.channel.typing():
-        reply = await loop.run_in_executor(None, generate_reply, content)
+        reply = await generate_reply(content)
 
     if reply:
         paragraphs = [p.strip() for p in reply.split('\n\n') if p.strip()]
