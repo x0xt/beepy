@@ -32,6 +32,7 @@ async def _call_model(content: str) -> str | None:
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user",   "content": content},
             ],
+            think=False,
             options={"num_ctx": 512, "num_predict": tokens, "num_thread": 2},
             keep_alive=-1,
         )

@@ -1,6 +1,6 @@
 {
   "bot_token": "YOUR_DISCORD_BOT_TOKEN",
   "reply_chance": 0.4,
-  "model": "llama3.2:1b",
+  "model": "huihui_ai/gemma-4-abliterated:e2b",
   "roll_interval_seconds": 600
 }
